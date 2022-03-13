@@ -1,0 +1,25 @@
+{
+    "name": "static-notion",
+    "version": "1.0.0",
+    "description": "Static site generator + Notion integration",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Alexa Sparks",
+    "license": "MIT",
+    "prettier": {
+        "trailingComma": "all",
+        "tabWidth": 2,
+        "semi": true,
+        "singleQuote": true
+    },
+    "devDependencies": {
+        "@types/node": "^17.0.21",
+        "@typescript-eslint/eslint-plugin": "^5.14.0",
+        "@typescript-eslint/parser": "^5.14.0",
+        "eslint": "^8.11.0",
+        "prettier": "2.5.1",
+        "typescript": "^4.6.2"
+    }
+}
