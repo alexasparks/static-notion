@@ -4,22 +4,27 @@
     "description": "Static site generator + Notion integration",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "dev": "rm -rf build && npx tsc && node -r dotenv/config build/index.js"
     },
     "author": "Alexa Sparks",
     "license": "MIT",
     "prettier": {
         "trailingComma": "all",
-        "tabWidth": 2,
         "semi": true,
+        "tabWidth": 2,
+        "useTabs": true,
         "singleQuote": true
     },
     "devDependencies": {
         "@types/node": "^17.0.21",
         "@typescript-eslint/eslint-plugin": "^5.14.0",
         "@typescript-eslint/parser": "^5.14.0",
+        "dotenv": "^16.0.0",
         "eslint": "^8.11.0",
         "prettier": "2.5.1",
         "typescript": "^4.6.2"
+    },
+    "dependencies": {
+        "@notionhq/client": "^1.0.3"
     }
 }
