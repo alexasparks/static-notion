@@ -6,27 +6,27 @@ const genericTagWrapper = (tag: string, content: string) =>
 	`<${tag}>${content}</${tag}>`;
 
 const aTagWrapper = (content: string, href: string) =>
-	`<a href=${href}>${content}</a>`;
+	`<a href=${href} target="_blank">${content}</a>`;
 
 /**
  *
  * @param contentBlocks Array<PartialBlockObjectResponse | BlockObjectResponse>
  * @returns string of content wrapped with HTML tags
  */
-export const wrapPageContentWithHtmlTags = async (
+export const wrapPageContentWithHtmlTags = (
 	contentBlocks: ListBlockChildrenResponse['results'],
 ) => {
 	let template = '';
 
-	for (const contentBlock of contentBlocks) {
+	contentBlocks.forEach((contentBlock, i) => {
 		// @ts-ignore
 		// @TODO: look into types for contentBlock, seems BlockObjectResponse is not being exported correctly from notion API
-		const sectionTag = blockTypeToSupportedHtmlMap.get(contentBlock.type);
+		const contentBlockTag = blockTypeToSupportedHtmlMap.get(contentBlock.type);
 
 		// @ts-ignore
 		const richTextBlocks = contentBlock[contentBlock.type].rich_text;
 
-		let pageContent = '';
+		let contentBlockContent = '';
 		for (const richTextBlock of richTextBlocks) {
 			// @ts-ignore
 			let tag = blockTypeToSupportedHtmlMap.get(contentBlock.type);
@@ -36,37 +36,47 @@ export const wrapPageContentWithHtmlTags = async (
 			if (tag === 'p' && richTextBlock.href) {
 				tag = 'a';
 			}
-
-			// The section will specify list type, but we want the children to
-			// be wrapped in li tags
-			if (sectionTag === 'ul' || sectionTag === 'ol') {
-				tag = 'li';
-			}
-
 			switch (tag) {
 				case 'p':
-					pageContent += richTextBlock[richTextBlock.type].content;
+					contentBlockContent += richTextBlock[richTextBlock.type].content;
 					break;
 				case 'a':
-					pageContent += aTagWrapper(
+					contentBlockContent += aTagWrapper(
 						richTextBlock[richTextBlock.type].content,
 						richTextBlock[richTextBlock.type].link.url,
 					);
 					break;
-				case 'li':
-					pageContent += genericTagWrapper(
-						'li',
-						richTextBlock[richTextBlock.type].content,
-					);
 				default:
-					pageContent += richTextBlock[richTextBlock.type].content;
+					contentBlockContent += richTextBlock[richTextBlock.type].content;
 			}
 		}
 
-		if (sectionTag) {
-			template += genericTagWrapper(sectionTag, pageContent);
+		// We need to wrap lists in ul or ol, this logic checks for list items
+		if (contentBlockTag === 'ul' || contentBlockTag === 'ol') {
+			const prevBlock = contentBlocks[i - 1];
+			const nextBlock = contentBlocks[i + 1];
+			// @ts-ignore
+			const prevTag = blockTypeToSupportedHtmlMap.get(prevBlock.type);
+			// @ts-ignore
+			const nextTag = blockTypeToSupportedHtmlMap.get(nextBlock.type);
+
+			const listItem = genericTagWrapper('li', contentBlockContent);
+
+			if (prevTag !== contentBlockTag) {
+				template += `<${contentBlockTag}>${listItem}`;
+				return;
+			}
+
+			if (nextTag !== contentBlockTag) {
+				template += `${listItem}</${contentBlockTag}>`;
+				return;
+			}
+
+			template += listItem;
+		} else {
+			template += genericTagWrapper(contentBlockTag, contentBlockContent);
 		}
-	}
+	});
 
 	return template;
 };
