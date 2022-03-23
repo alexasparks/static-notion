@@ -11,7 +11,7 @@ import {
 const siteDirPath = path.join(__dirname, '..', 'site');
 
 const init = async () => {
-	const notionPagesWithContent = await getPagesWithContentBlocks();
+	const notionPagesWithContent = (await getPagesWithContentBlocks()) ?? [];
 
 	// we want a fresh site dir every time!
 	if (fs.existsSync(siteDirPath)) {
@@ -21,28 +21,20 @@ const init = async () => {
 	fs.mkdirSync(siteDirPath);
 
 	for (const pageWithContentBlock of notionPagesWithContent) {
-		const htmlBodyContent = await wrapPageContentWithHtmlTags(
-			pageWithContentBlock.pageContent,
-		);
+		const htmlBodyContent =
+			wrapPageContentWithHtmlTags(pageWithContentBlock.pageContent) ?? '';
 
 		// @ts-ignore
 		const pageProps = pageWithContentBlock.page.properties;
+		const title = pageProps.Title[pageProps.Title.type][0].plain_text;
+		const slug = `${pageProps.slug[pageProps.slug.type][0].plain_text}.html`;
 
-		const head = constructHeadTagTemplate(
-			//@ts-ignore
-			pageProps.Title[pageProps.Title.type][0].plain_text,
-		);
+		const head = constructHeadTagTemplate(title);
 
-		const body = constructBodyTagTemplate(htmlBodyContent);
+		const body = constructBodyTagTemplate(title, htmlBodyContent);
 
 		const htmlTemplate = constructHtmlTagTemplate(`${head}${body}`);
-		fs.writeFileSync(
-			path.join(
-				siteDirPath,
-				`${pageProps.slug[pageProps.slug.type][0].plain_text}.html`,
-			),
-			htmlTemplate,
-		);
+		fs.writeFileSync(path.join(siteDirPath, slug), htmlTemplate);
 	}
 };
 

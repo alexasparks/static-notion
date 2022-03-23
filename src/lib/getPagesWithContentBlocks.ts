@@ -10,34 +10,38 @@ const notion = new Client({ auth: process.env.NOTION_API_KEY });
  * @return Array<{ page, pageContent }>
  */
 export const getPagesWithContentBlocks = async () => {
-	const pagesWithContentBlocks = [];
+	try {
+		const pagesWithContentBlocks = [];
 
-	const databaseId = process.env.NOTION_DB_ID;
+		const databaseId = process.env.NOTION_DB_ID;
 
-	const dbQueryResponse = await notion.databases.query({
-		database_id: databaseId!,
-		filter: {
-			property: 'Publish',
-			checkbox: {
-				equals: true,
+		const dbQueryResponse = await notion.databases.query({
+			database_id: databaseId!,
+			filter: {
+				property: 'Publish',
+				checkbox: {
+					equals: true,
+				},
 			},
-		},
-	});
-
-	const pages = dbQueryResponse.results;
-
-	for (const page of pages) {
-		const pageContentResponse = await notion.blocks.children.list({
-			block_id: page.id,
 		});
 
-		const pageContent = pageContentResponse.results;
+		const pages = dbQueryResponse.results;
 
-		pagesWithContentBlocks.push({
-			page,
-			pageContent,
-		});
+		for (const page of pages) {
+			const pageContentResponse = await notion.blocks.children.list({
+				block_id: page.id,
+			});
+
+			const pageContent = pageContentResponse.results;
+
+			pagesWithContentBlocks.push({
+				page,
+				pageContent,
+			});
+		}
+
+		return pagesWithContentBlocks;
+	} catch (error) {
+		console.error('Error fetching content from Notion: ', error);
 	}
-
-	return pagesWithContentBlocks;
 };
