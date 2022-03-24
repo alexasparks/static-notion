@@ -9,6 +9,7 @@ import {
 } from './lib/helpers/htmlTemplateConstructors';
 
 const siteDirPath = path.join(__dirname, '..', 'site');
+const postsDirPath = path.join(__dirname, '..', 'site', 'posts');
 
 const init = async () => {
 	const notionPagesWithContent = (await getPagesWithContentBlocks()) ?? [];
@@ -19,6 +20,7 @@ const init = async () => {
 	}
 
 	fs.mkdirSync(siteDirPath);
+	fs.mkdirSync(postsDirPath);
 
 	for (const pageWithContentBlock of notionPagesWithContent) {
 		const htmlBodyContent =
@@ -34,7 +36,7 @@ const init = async () => {
 		const body = constructBodyTagTemplate(title, htmlBodyContent);
 
 		const htmlTemplate = constructHtmlTagTemplate(`${head}${body}`);
-		fs.writeFileSync(path.join(siteDirPath, slug), htmlTemplate);
+		fs.writeFileSync(path.join(postsDirPath, slug), htmlTemplate);
 	}
 };
 
