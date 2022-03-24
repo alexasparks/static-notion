@@ -10,10 +10,10 @@ import { constructGenericTagTemplate } from './helpers/htmlTemplateConstructors'
 export const wrapPageContentWithHtmlTags = (
 	contentBlocks: ListBlockChildrenResponse['results'],
 ) => {
-	try {
-		let template = '';
+	let template = '';
 
-		contentBlocks.forEach((contentBlock, i) => {
+	contentBlocks.forEach((contentBlock, i) => {
+		try {
 			// @TODO: look into types for contentBlock, seems BlockObjectResponse is not being exported correctly from notion API
 			const contentBlockTag = blockTypeToSupportedHtmlMap.get(
 				// @ts-ignore
@@ -21,7 +21,9 @@ export const wrapPageContentWithHtmlTags = (
 			);
 
 			// @ts-ignore
-			const richTextBlocks = contentBlock[contentBlock.type].rich_text;
+			const contentBlockTypeDetails = contentBlock[contentBlock.type];
+
+			const richTextBlocks = contentBlockTypeDetails.rich_text ?? [];
 
 			let contentBlockContent = '';
 			for (const richTextBlock of richTextBlocks) {
@@ -71,16 +73,28 @@ export const wrapPageContentWithHtmlTags = (
 				}
 
 				template += listItem;
+			} else if (contentBlockTag === 'img') {
+				const caption = contentBlockTypeDetails.caption[0]?.plain_text;
+
+				if (!caption) {
+					return;
+				}
+
+				template += constructGenericTagTemplate(
+					contentBlockTag,
+					caption,
+					contentBlockTypeDetails.file.url,
+				);
 			} else {
 				template += constructGenericTagTemplate(
 					contentBlockTag,
 					contentBlockContent,
 				);
 			}
-		});
+		} catch (error) {
+			console.error('Error wrapping page content with HTML tags: ', error);
+		}
+	});
 
-		return template;
-	} catch (error) {
-		console.error('Error wrapping page content with HTML tags: ', error);
-	}
+	return template;
 };

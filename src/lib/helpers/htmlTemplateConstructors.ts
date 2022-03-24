@@ -11,10 +11,14 @@ export const constructHtmlTagTemplate = (content: string) =>
 export const constructGenericTagTemplate = (
 	tag: string,
 	content: string,
-	href?: string,
+	link?: string,
 ) => {
-	if (href) {
-		return `<a href=${href} target="_blank">${content}</a>`;
+	if (tag === 'a') {
+		return `<a href=${link} target="_blank">${content}</a>`;
+	}
+
+	if (tag === 'img') {
+		return `<img src=${link} loading="lazy" alt=${content}>`;
 	}
 
 	return `<${tag}>${content}</${tag}>`;

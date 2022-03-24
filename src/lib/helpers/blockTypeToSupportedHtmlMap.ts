@@ -6,5 +6,6 @@ blockTypeToSupportedHtmlMap.set('heading_2', 'h2');
 blockTypeToSupportedHtmlMap.set('heading_3', 'h3');
 blockTypeToSupportedHtmlMap.set('bulleted_list_item', 'ul');
 blockTypeToSupportedHtmlMap.set('numbered_list_item', 'ol');
+blockTypeToSupportedHtmlMap.set('image', 'img');
 
 export default blockTypeToSupportedHtmlMap;
