@@ -1,6 +1,6 @@
 import { ListBlockChildrenResponse } from '@notionhq/client/build/src/api-endpoints';
 import blockTypeToSupportedHtmlMap from './helpers/blockTypeToSupportedHtmlMap';
-import { constructGenericTagTemplate } from './helpers/htmlTemplateConstructors';
+import { createTag } from './helpers/htmlTemplateConstructors';
 
 /**
  *
@@ -40,11 +40,11 @@ export const wrapPageContentWithHtmlTags = (
 						contentBlockContent += richTextBlock[richTextBlock.type].content;
 						break;
 					case 'a':
-						contentBlockContent += constructGenericTagTemplate(
-							tag,
-							richTextBlock[richTextBlock.type].content,
-							richTextBlock[richTextBlock.type].link.url,
-						);
+						contentBlockContent += createTag({
+							el: tag,
+							attr: `href=${richTextBlock[richTextBlock.type].link.url}`,
+							content: richTextBlock[richTextBlock.type].content,
+						});
 						break;
 					default:
 						contentBlockContent += richTextBlock[richTextBlock.type].content;
@@ -60,7 +60,7 @@ export const wrapPageContentWithHtmlTags = (
 				// @ts-ignore
 				const nextTag = blockTypeToSupportedHtmlMap.get(nextBlock?.type);
 
-				const listItem = constructGenericTagTemplate('li', contentBlockContent);
+				const listItem = createTag({ el: 'li', content: contentBlockContent });
 
 				if (prevTag !== contentBlockTag) {
 					template += `<${contentBlockTag}>${listItem}`;
@@ -80,16 +80,16 @@ export const wrapPageContentWithHtmlTags = (
 					return;
 				}
 
-				template += constructGenericTagTemplate(
-					contentBlockTag,
-					caption,
-					contentBlockTypeDetails.file.url,
-				);
+				template += createTag({
+					el: contentBlockTag,
+					attr: `src=${contentBlockTypeDetails.file.url}`,
+					content: caption,
+				});
 			} else {
-				template += constructGenericTagTemplate(
-					contentBlockTag,
-					contentBlockContent,
-				);
+				template += createTag({
+					el: contentBlockTag,
+					content: contentBlockContent,
+				});
 			}
 		} catch (error) {
 			console.error('Error wrapping page content with HTML tags: ', error);

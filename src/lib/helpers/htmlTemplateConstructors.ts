@@ -7,19 +7,12 @@ export const constructBodyTagTemplate = (title: string, content: string) =>
 export const constructHtmlTagTemplate = (content: string) =>
 	`<!DOCTYPE html><html lang="en">${content}</html>`;
 
-/** Handles most supported html tags, including p, li, ul, ol, h1, h2, h3 */
-export const constructGenericTagTemplate = (
-	tag: string,
-	content: string,
-	link?: string,
-) => {
-	if (tag === 'a') {
-		return `<a href=${link} target="_blank">${content}</a>`;
-	}
-
-	if (tag === 'img') {
-		return `<img src=${link} loading="lazy" alt=${content}>`;
-	}
-
-	return `<${tag}>${content}</${tag}>`;
-};
+export const createTag = ({
+	el,
+	attr,
+	content,
+}: {
+	el: string;
+	attr?: string;
+	content: string;
+}) => `<${el} ${attr ?? ''}>${content}</${el}>`;
